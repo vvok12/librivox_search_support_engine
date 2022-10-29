@@ -21,7 +21,7 @@ impl LibGenDump {
         }
     }
 
-    pub(crate) fn extract(&self) {
+    pub(crate) fn extract(&self) -> File {
         match &self.dump {
             Some(_) => {
                 Archive::new(DUMP_FICTION_RAR.to_string())
@@ -30,7 +30,16 @@ impl LibGenDump {
             },
             None => ()
         };
+
+        open_extracted_file()
     }
+}
+
+fn open_extracted_file() -> File {
+    let mut file = String::from(DUMP_FICTION_EXTRACT);
+    file.push_str(&DUMP_FICTION_RAR.replace("rar", "sql"));
+
+    File::open(file).unwrap()
 }
 
 fn open_file() -> Option<File> {
