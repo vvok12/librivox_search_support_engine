@@ -1,12 +1,31 @@
 mod libgen_dump;
 mod sql_conversion;
 
+use std::sync::mpsc::channel;
+use std::thread;
+
 use libgen_dump::LibGenDump;
 use sql_conversion::FictionSql;
 
+enum ProgramStage {
+    Preparation,
+    Ready
+}
+
 fn main() {
-    
-    libgen_fiction_strategy();
+    let (sender, reciver) = channel::<ProgramStage>();
+    thread::spawn(move|| {
+        sender.send(ProgramStage::Preparation).unwrap();
+        libgen_fiction_strategy();
+        sender.send(ProgramStage::Ready).unwrap()
+    });
+
+    loop {
+        match reciver.recv().unwrap() {
+            ProgramStage::Preparation => println!("preparation started"),
+            ProgramStage::Ready => { println!("ready"); break; },
+        }    
+    }
 }
 
 
@@ -16,7 +35,7 @@ fn libgen_fiction_strategy() {
 }
 
 fn upload(_fiction_sql: FictionSql) {
-    todo!()
+    println!("UPLOADING TO DB");//todo!()
 }
 
 #[test]
