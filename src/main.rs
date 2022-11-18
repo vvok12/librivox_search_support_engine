@@ -1,7 +1,7 @@
 mod libgen_dump;
 mod sql_conversion;
 
-use std::sync::mpsc::channel;
+use std::sync::mpsc::{channel, Sender};
 use std::thread;
 
 use libgen_dump::LibGenDump;
@@ -14,11 +14,7 @@ enum ProgramStage {
 
 fn main() {
     let (sender, reciver) = channel::<ProgramStage>();
-    thread::spawn(move|| {
-        sender.send(ProgramStage::Preparation).unwrap();
-        libgen_fiction_strategy();
-        sender.send(ProgramStage::Ready).unwrap()
-    });
+    spawn_fiction_download(sender);
 
     loop {
         match reciver.recv().unwrap() {
@@ -28,10 +24,15 @@ fn main() {
     }
 }
 
-
-fn libgen_fiction_strategy() {
-    let fiction_sql_file = LibGenDump::load().extract();
-    upload(FictionSql(fiction_sql_file));
+fn spawn_fiction_download(sender: Sender<ProgramStage>) {
+    thread::spawn(move|| {
+        sender.send(ProgramStage::Preparation).unwrap();
+        
+        let fiction_sql_file = LibGenDump::load().extract();
+        upload(FictionSql(fiction_sql_file));
+        
+        sender.send(ProgramStage::Ready).unwrap()
+    });
 }
 
 fn upload(_fiction_sql: FictionSql) {
