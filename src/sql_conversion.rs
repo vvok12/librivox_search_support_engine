@@ -4,12 +4,12 @@ use std::io::{BufReader, BufRead, Error};
 pub(crate) struct FictionSql(pub(crate) File);
 
 impl FictionSql {
-    fn postgres_tables_script(self) -> Vec<String> {
-        vec![]
+    pub(crate) fn tables_script(&self) -> Vec<&'static str> {
+        vec![DROP_FICTION, CREATE_FICTION]
     }
 
-    pub(crate) fn postgres_rows_script(self) -> impl Iterator<Item = Result<String, Error>> {
-        BufReader::new(self.0)
+    pub(crate) fn insert_rows_scripts(&self) -> impl Iterator<Item = Result<String, Error>>+'_ {
+        BufReader::new(&self.0)
             .lines()
             .filter(|line_read_result| line_read_result.is_ok() &&  { 
                 let line: &String = line_read_result.as_ref().unwrap();
@@ -18,6 +18,8 @@ impl FictionSql {
     }
 }
 
+const DROP_FICTION: &str = "DROP TABLE IF EXISTS public.fiction;";
+const CREATE_FICTION: &str = "";
 
 /* FICTION.SQL
 
