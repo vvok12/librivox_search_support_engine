@@ -24,3 +24,14 @@ fn libgen_fiction_strategy() {
 
     _ = File::create("fiction/fiction_rows.txt").unwrap().write(fiction_rows[0].as_bytes());
 }
+
+#[test]
+fn select_sql() {
+    let fiction_sql = File::open("fiction/fiction.sql").unwrap();
+
+    let fiction = FictionSql(fiction_sql);
+    let fiction_rows:Vec<String> = fiction.insert_rows_scripts().take(1).map(|r| r.unwrap()).collect();
+    let _fiction_tables = fiction.tables_script();
+
+    _ = File::create("fiction/fiction_rows.txt").unwrap().write(fiction_rows[0].as_bytes());
+} 
