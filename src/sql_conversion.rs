@@ -4,11 +4,11 @@ use std::io::{BufReader, BufRead, Error};
 pub(crate) struct FictionSql(pub(crate) File);
 
 impl FictionSql {
-    pub(crate) fn tables_script(&self) -> Vec<&'static str> {
+    pub(crate) fn get_tables_script(&self) -> Vec<&'static str> {
         vec![DROP_FICTION, CREATE_FICTION]
     }
 
-    pub(crate) fn insert_rows_scripts(&self) -> impl Iterator<Item = Result<String, Error>>+'_ {
+    pub(crate) fn get_rows_insert_scripts(&self) -> impl Iterator<Item = Result<String, Error>>+'_ {
         BufReader::new(&self.0)
             .lines()
             .filter(|line_read_result| line_read_result.is_ok() &&  { 
