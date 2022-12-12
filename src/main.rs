@@ -72,7 +72,12 @@ mod fiction_test {
             .replace("TimeAdded","\"TimeAdded\"")
             .replace("TimeLastModified", "\"TimeLastModified\"");
 
-        tail.replace("\\'", "`").split("),(").into_iter().map(
+        let tail = tail.replace("\\'", "''");
+
+        vec![format!("{} {}", pattern, tail)]
+        
+        /*
+        .split("),(").into_iter().map(
             |s| {
                 let mut x = pattern.clone();
                 if s.chars().nth(0) != Some('(') { 
@@ -87,6 +92,7 @@ mod fiction_test {
                 x
             }
         ).collect()
+         */
     }
 
     #[test]
@@ -115,13 +121,9 @@ mod fiction_test {
         let (_, mut rows) = get_fiction_rows(1).unwrap();
         let rows = reshape_postgres_row(rows.pop().unwrap());
 
-        for row in &rows[0..10] {
-            println!("rows: {:?} \n", row);
-        }
-
         let mut client = Client::connect(POSTGRES_CONNECTION_STRING, NoTls).unwrap();
         //client.execute("delete from fiction;", &[]).unwrap();
-        client.execute(&rows[2] as &str, &[]).unwrap();
+        client.execute(&rows[0] as &str, &[]).unwrap();
     }
 }
  
