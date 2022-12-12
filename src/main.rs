@@ -45,7 +45,7 @@ mod fiction_test {
     use crate::sql_conversion::FictionSql;
     use std::fs::File;
     use std::io::{prelude::*, self};
-    use postgres::{Client, NoTls};
+    use postgres::{Client, NoTls, GenericClient};
 
     const POSTGRES_CONNECTION_STRING: &str = "host=localhost user=postgres password=admin dbname=libgen";
 
@@ -72,7 +72,7 @@ mod fiction_test {
             .replace("TimeAdded","\"TimeAdded\"")
             .replace("TimeLastModified", "\"TimeLastModified\"");
 
-        tail.split("),(").into_iter().map(
+        tail.replace("\\'", "`").split("),(").into_iter().map(
             |s| {
                 let mut x = pattern.clone();
                 if s.chars().nth(0) != Some('(') { 
@@ -114,8 +114,14 @@ mod fiction_test {
     fn load_fiction_rows_to_db() {
         let (_, mut rows) = get_fiction_rows(1).unwrap();
         let rows = reshape_postgres_row(rows.pop().unwrap());
+
+        for row in &rows[0..10] {
+            println!("rows: {:?} \n", row);
+        }
+
         let mut client = Client::connect(POSTGRES_CONNECTION_STRING, NoTls).unwrap();
-        client.execute(&rows[0] as &str, &[]).unwrap();
+        //client.execute("delete from fiction;", &[]).unwrap();
+        client.execute(&rows[2] as &str, &[]).unwrap();
     }
 }
  
