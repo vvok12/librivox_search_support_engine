@@ -47,7 +47,7 @@ mod fiction_test {
     use std::io::{prelude::*, self};
     use postgres::{Client, NoTls};
 
-    const POSTGRES_CONNECTION_STRING: &str = "host=localhost user=postgres password=admin";
+    const POSTGRES_CONNECTION_STRING: &str = "host=localhost user=postgres password=admin dbname=libgen";
 
     fn get_fiction_txt() -> io::Result<File> {
         File::open("fiction/fiction.sql")
@@ -67,7 +67,10 @@ mod fiction_test {
         let tail = &row[til_values..];
 
         let pattern = pattern.replace('`', "")
-            .replace("fiction", "libgen.public.fiction");
+            .replace("GooglebookID", "\"googlebookID\"")
+            .replace("ASIN","\"ASIN\"")
+            .replace("TimeAdded","\"TimeAdded\"")
+            .replace("TimeLastModified", "\"TimeLastModified\"");
 
         tail.split("),(").into_iter().map(
             |s| {
